@@ -343,74 +343,7 @@ def main():
         'Probability (%)': [f"{p*100:.2f}%" for p in results['all_probs']]
     }
     st.dataframe(df_results, width="stretch")
-    # st.header("📊 Classification Results")
-
-    # col1, col2 = st.columns(2)
-
-    # # Left column: Image visualization with toggle
-    # with col1:
-    #     st.subheader("🖼️ Satellite Image")
-
-    #     if modality == 'MS':
-    #         view_mode = st.radio("Display Mode", options=['RGB Composite', 'False Color (NIR-R-G)'],
-    #                             help="False Color highlights vegetation health in red")
-    #         if view_mode == 'False Color (NIR-R-G)':
-    #             display_rgb = get_false_color_composite(img_array)
-    #     else:
-    #         st.text("RGB Natural Color")
-
-    #     st.image(display_rgb, caption="Visualized Patch", width="stretch")
-
-    # # Right column: Predictions
-    # with col2:
-    #     st.subheader("🎯 Top 3 Predictions")
-
-    #     # Bar chart with probabilities
-    #     fig, ax = plt.subplots(figsize=(8, 4))
-    #     bars = ax.barh(results['top_classes'], results['top_probs'] * 100)
-
-    #     # Color bars based on confidence
-    #     for i, bar in enumerate(bars):
-    #         prob = results['top_probs'][i]
-    #         if prob > 0.6:
-    #             bar.set_color('#2ecc71')  # Green (high confidence)
-    #         elif prob > 0.3:
-    #             bar.set_color('#f39c12')  # Orange (medium confidence)
-    #         else:
-    #             bar.set_color('#e74c3c')  # Red (low confidence)
-
-    #     ax.set_xlabel('Probability (%)')
-    #     ax.set_title('Classification Confidence')
-    #     ax.set_xlim(0, 100)
-
-    #     # Add percentage labels on bars
-    #     for i, (bar, prob) in enumerate(zip(bars, results['top_probs'])):
-    #         ax.text(prob * 100 + 1, bar.get_y() + bar.get_height() / 2,
-    #                f'{prob * 100:.1f}%', va='center', fontsize=10, fontweight='bold')
-
-    #     plt.tight_layout()
-    #     st.pyplot(fig, width="stretch")
-
-    # # ─────────────────────────────────────────────────────────────────────────
-    # # Detailed Metrics
-    # # ─────────────────────────────────────────────────────────────────────────
-    # st.header("📈 Detailed Analysis")
-
-    # metric_cols = st.columns(3)
-    # with metric_cols[0]:
-    #     st.metric("Top Prediction", results['top_classes'][0], f"{results['top_probs'][0]*100:.1f}%")
-    # with metric_cols[1]:
-    #     st.metric("2nd Place", results['top_classes'][1], f"{results['top_probs'][1]*100:.1f}%")
-    # with metric_cols[2]:
-    #     st.metric("3rd Place", results['top_classes'][2], f"{results['top_probs'][2]*100:.1f}%")
-
-    # # All class probabilities table
-    # st.subheader("All Class Probabilities")
-    # df_results = {
-    #     'Class': config.CLASS_NAMES,
-    #     'Probability (%)': [f"{p*100:.2f}%" for p in results['all_probs']]
-    # }
-    # st.dataframe(df_results, width="stretch")
+    
     # ─────────────────────────────────────────────────────────────────────────
     # Footer
     # ─────────────────────────────────────────────────────────────────────────
