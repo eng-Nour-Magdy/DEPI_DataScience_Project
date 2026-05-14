@@ -1,0 +1,9 @@
+{
+  "modality": "MS",
+  "test_accuracy": 0.9285185185185185,
+  "best_val_loss": 0.26927551583332177,
+  "num_epochs_trained": 3,
+  "input_channels": 13,
+  "num_parameters": 24593610,
+  "trainable_parameters": 5424458
+}

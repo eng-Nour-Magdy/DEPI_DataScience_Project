@@ -1,0 +1,9 @@
+{
+  "modality": "RGB",
+  "test_accuracy": 0.9433333333333334,
+  "best_val_loss": 0.16251753255834475,
+  "num_epochs_trained": 3,
+  "input_channels": 3,
+  "num_parameters": 24562250,
+  "trainable_parameters": 5393098
+}

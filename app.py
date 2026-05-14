@@ -8,7 +8,7 @@ Why: Enables non-technical users to interact with models, visualizes predictions
 Usage:
     streamlit run app.py
 """
-
+import matplotlib.pyplot as plt
 import streamlit as st
 import torch
 import torch.nn as nn
@@ -164,10 +164,10 @@ def preprocess_image(img_array, modality):
 
 
 @st.cache_data
-def run_inference(img_tensor, model):
+def run_inference(_img_tensor, _model):
     """Run model inference on image tensor."""
     with torch.no_grad():
-        logits = model(img_tensor)
+        logits = _model(_img_tensor)
         probs = torch.softmax(logits, dim=1)
         top_probs, top_indices = torch.topk(probs, k=3, dim=1)
 
@@ -308,7 +308,7 @@ def main():
                    f'{prob * 100:.1f}%', va='center', fontsize=10, fontweight='bold')
 
         plt.tight_layout()
-        st.pyplot(fig, use_column_width=True)
+        st.pyplot(fig, use_container_width=True)
 
     # ─────────────────────────────────────────────────────────────────────────
     # Detailed Metrics
