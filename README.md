@@ -6,6 +6,17 @@ This project provides a professional, modular framework for Land Use and Land Co
 
 ---
 
+## 👥 Project Team
+
+* **Eng. Nourhan Magdy** (Team Lead)
+* **Eng. Abdelrahamn Ashraf**
+* **Eng. Eslam Abdin**
+* **Eng. Heba Adel**
+* **Eng. Ahmed Abdelkhalek**
+* **Eng. Neamat Gamal**
+
+
+---
 ## 🏗️ Project Architecture
 
 | File | Purpose | Key Features |
@@ -119,3 +130,4 @@ streamlit run app.py
 
 ## 🎓 DEPI Graduation Project
 This system was engineered as a final graduation project for the **Digital Egypt Pioneers Initiative (DEPI)**. It demonstrates a complete Machine Learning engineering lifecycle—from raw geospatial data processing to a professional, deployable analytical application.
+## 
