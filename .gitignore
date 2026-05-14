@@ -1,0 +1,12 @@
+# Ignore everything in these folders
+EuroSAT/
+EuroSAT_RGB/
+EuroSAT_MS/
+**/EuroSAT_RGB/
+**/EuroSAT_MS/
+
+# Ignore specifically by extension just in case
+*.jpg
+*.jpeg
+*.tif
+*.tiff
