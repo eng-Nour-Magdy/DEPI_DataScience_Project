@@ -163,7 +163,6 @@ def preprocess_image(img_array, modality):
     return img_tensor.unsqueeze(0).to(config.DEVICE)  # Add batch dimension
 
 
-@st.cache_data
 def run_inference(_img_tensor, _model):
     """Run model inference on image tensor."""
     with torch.no_grad():
@@ -278,14 +277,28 @@ def main():
         else:
             st.text("RGB Natural Color")
 
-        st.image(display_rgb, use_column_width=True, caption="Original Image")
+        st.image(display_rgb, caption="Visualized Patch", width="stretch")
 
     # Right column: Predictions
     with col2:
         st.subheader("🎯 Top 3 Predictions")
 
-        # Bar chart with probabilities
+        # Create the figure
         fig, ax = plt.subplots(figsize=(8, 4))
+
+        # --- DARK MODE FIXES START ---
+        fig.patch.set_alpha(0.0)      # Transparent outer background
+        ax.set_facecolor((0,0,0,0))   # Transparent inner background
+        
+        # Set text and axis colors to be visible in Dark Mode
+        label_color = "#808080" 
+        plt.rcParams.update({'text.color': label_color, 'axes.labelcolor': label_color})
+        ax.tick_params(colors=label_color, which='both')
+        for spine in ax.spines.values():
+            spine.set_edgecolor(label_color)
+        # --- DARK MODE FIXES END ---
+
+        # Bar chart with probabilities
         bars = ax.barh(results['top_classes'], results['top_probs'] * 100)
 
         # Color bars based on confidence
@@ -298,17 +311,18 @@ def main():
             else:
                 bar.set_color('#e74c3c')  # Red (low confidence)
 
-        ax.set_xlabel('Probability (%)')
-        ax.set_title('Classification Confidence')
+        ax.set_xlabel('Probability (%)', color=label_color)
+        ax.set_title('Classification Confidence', color=label_color)
         ax.set_xlim(0, 100)
 
         # Add percentage labels on bars
         for i, (bar, prob) in enumerate(zip(bars, results['top_probs'])):
             ax.text(prob * 100 + 1, bar.get_y() + bar.get_height() / 2,
-                   f'{prob * 100:.1f}%', va='center', fontsize=10, fontweight='bold')
+                   f'{prob * 100:.1f}%', va='center', fontsize=10, fontweight='bold', color=label_color)
 
         plt.tight_layout()
-        st.pyplot(fig, use_container_width=True)
+        # Important: set transparent=True here
+        st.pyplot(fig, width="stretch", transparent=True)
 
     # ─────────────────────────────────────────────────────────────────────────
     # Detailed Metrics
@@ -323,24 +337,111 @@ def main():
     with metric_cols[2]:
         st.metric("3rd Place", results['top_classes'][2], f"{results['top_probs'][2]*100:.1f}%")
 
-    # All class probabilities table
     st.subheader("All Class Probabilities")
     df_results = {
         'Class': config.CLASS_NAMES,
         'Probability (%)': [f"{p*100:.2f}%" for p in results['all_probs']]
     }
-    st.dataframe(df_results, use_container_width=True)
+    st.dataframe(df_results, width="stretch")
+    # st.header("📊 Classification Results")
 
+    # col1, col2 = st.columns(2)
+
+    # # Left column: Image visualization with toggle
+    # with col1:
+    #     st.subheader("🖼️ Satellite Image")
+
+    #     if modality == 'MS':
+    #         view_mode = st.radio("Display Mode", options=['RGB Composite', 'False Color (NIR-R-G)'],
+    #                             help="False Color highlights vegetation health in red")
+    #         if view_mode == 'False Color (NIR-R-G)':
+    #             display_rgb = get_false_color_composite(img_array)
+    #     else:
+    #         st.text("RGB Natural Color")
+
+    #     st.image(display_rgb, caption="Visualized Patch", width="stretch")
+
+    # # Right column: Predictions
+    # with col2:
+    #     st.subheader("🎯 Top 3 Predictions")
+
+    #     # Bar chart with probabilities
+    #     fig, ax = plt.subplots(figsize=(8, 4))
+    #     bars = ax.barh(results['top_classes'], results['top_probs'] * 100)
+
+    #     # Color bars based on confidence
+    #     for i, bar in enumerate(bars):
+    #         prob = results['top_probs'][i]
+    #         if prob > 0.6:
+    #             bar.set_color('#2ecc71')  # Green (high confidence)
+    #         elif prob > 0.3:
+    #             bar.set_color('#f39c12')  # Orange (medium confidence)
+    #         else:
+    #             bar.set_color('#e74c3c')  # Red (low confidence)
+
+    #     ax.set_xlabel('Probability (%)')
+    #     ax.set_title('Classification Confidence')
+    #     ax.set_xlim(0, 100)
+
+    #     # Add percentage labels on bars
+    #     for i, (bar, prob) in enumerate(zip(bars, results['top_probs'])):
+    #         ax.text(prob * 100 + 1, bar.get_y() + bar.get_height() / 2,
+    #                f'{prob * 100:.1f}%', va='center', fontsize=10, fontweight='bold')
+
+    #     plt.tight_layout()
+    #     st.pyplot(fig, width="stretch")
+
+    # # ─────────────────────────────────────────────────────────────────────────
+    # # Detailed Metrics
+    # # ─────────────────────────────────────────────────────────────────────────
+    # st.header("📈 Detailed Analysis")
+
+    # metric_cols = st.columns(3)
+    # with metric_cols[0]:
+    #     st.metric("Top Prediction", results['top_classes'][0], f"{results['top_probs'][0]*100:.1f}%")
+    # with metric_cols[1]:
+    #     st.metric("2nd Place", results['top_classes'][1], f"{results['top_probs'][1]*100:.1f}%")
+    # with metric_cols[2]:
+    #     st.metric("3rd Place", results['top_classes'][2], f"{results['top_probs'][2]*100:.1f}%")
+
+    # # All class probabilities table
+    # st.subheader("All Class Probabilities")
+    # df_results = {
+    #     'Class': config.CLASS_NAMES,
+    #     'Probability (%)': [f"{p*100:.2f}%" for p in results['all_probs']]
+    # }
+    # st.dataframe(df_results, width="stretch")
     # ─────────────────────────────────────────────────────────────────────────
     # Footer
     # ─────────────────────────────────────────────────────────────────────────
     st.markdown("---")
     st.markdown("""
-    <div style='text-align: center; color: gray; font-size: 12px;'>
-    🛰️ LULC Classification System | ResNet50 | Sentinel-2 Dataset
-    </div>
+                <style>
+    /* Force metric cards to have a transparent background and dynamic text color */
+    [data-testid="stMetric"] {
+        background-color: rgba(255, 255, 255, 0.05);
+        padding: 15px;
+        border-radius: 10px;
+        border: 1px solid rgba(128, 128, 128, 0.2);
+    }
+    
+    /* Ensure the label and value are readable in both modes */
+    [data-testid="stMetricLabel"] {
+        font-weight: bold;
+    }
+    </style>
+        <div style='
+            text-align: center; 
+            padding: 20px; 
+            border-top: 1px solid rgba(128, 128, 128, 0.2);
+            margin-top: 30px;'>
+            <p style='color: #808080; font-size: 14px; margin-bottom: 5px;'>
+                🛰️ <b>LULC Classification System</b> | Powered by ResNet50 & Sentinel-2
+            </p>
+            <p style='color: #808080; font-size: 12px;'>
+                DEPI Graduation Project
+            </p>
+        </div>
     """, unsafe_allow_html=True)
-
-
 if __name__ == '__main__':
     main()
