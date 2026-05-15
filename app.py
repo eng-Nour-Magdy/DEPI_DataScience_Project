@@ -349,29 +349,48 @@ def main():
     # ─────────────────────────────────────────────────────────────────────────
     st.markdown("---")
     st.markdown("""
-                <style>
-    /* Force metric cards to have a transparent background and dynamic text color */
-    [data-testid="stMetric"] {
-        background-color: rgba(255, 255, 255, 0.05);
-        padding: 15px;
-        border-radius: 10px;
-        border: 1px solid rgba(128, 128, 128, 0.2);
-    }
-    
-    /* Ensure the label and value are readable in both modes */
-    [data-testid="stMetricLabel"] {
-        font-weight: bold;
-    }
-    </style>
-        <div style='
+        <style>
+        /* 1. Fix Metric Cards: Uses theme-aware secondary background */
+        [data-testid="stMetric"] {
+            background-color: var(--secondary-bg-color) !important;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(128, 128, 128, 0.2);
+        }
+
+        /* 2. Fix Metric Labels: Ensures visibility */
+        [data-testid="stMetricLabel"] {
+            font-weight: bold !important;
+            color: var(--text-color) !important;
+        }
+
+        /* 3. Professional Footer Styling */
+        .footer-container {
             text-align: center; 
             padding: 20px; 
             border-top: 1px solid rgba(128, 128, 128, 0.2);
-            margin-top: 30px;'>
-            <p style='color: #808080; font-size: 14px; margin-bottom: 5px;'>
+            margin-top: 30px;
+        }
+        
+        .footer-main-text {
+            color: var(--text-color);
+            opacity: 0.8; /* Creates a muted effect that works on any background */
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .footer-sub-text {
+            color: var(--text-color);
+            opacity: 0.6;
+            font-size: 12px;
+        }
+        </style>
+
+        <div class="footer-container">
+            <p class="footer-main-text">
                 🛰️ <b>LULC Classification System</b> | Powered by ResNet50 & Sentinel-2
             </p>
-            <p style='color: #808080; font-size: 12px;'>
+            <p class="footer-sub-text">
                 DEPI Graduation Project
             </p>
         </div>
