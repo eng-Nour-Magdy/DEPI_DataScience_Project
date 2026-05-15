@@ -142,5 +142,5 @@ In the future of this project, we are planning to implement:
 ---
 
 ## 🎓 DEPI Graduation Project
-This system was engineered as a final graduation project for the **Digital Egypt Pioneers Initiative (DEPI)**. It demonstrates a complete Machine Learning engineering lifecycle—from raw geospatial data processing to a professional, deployable analytical application.
+This system was engineered as a final graduation project for the **Digital Egypt Pioneers Initiative (DEPI)**. It demonstrates a complete Data Science lifecycle—from raw geospatial data processing to a professional, deployable analytical application.
 ## 
