@@ -8,9 +8,12 @@ This project provides a professional, modular framework for Land Use and Land Co
 
 ## 👥 Project Team
 
-* **Eng. Nourhan Magdy** (Team Lead)
+* **Eng. Nourhan Magdy (Team Leader)**
+  * Lead the project and prepared all the satellite data for the training pipeline.
 * **Eng. Abdelrahamn Ashraf**
+  * Performed model training, fine-tuning, and accuracy optimization.
 * **Eng. Eslam Abdin**
+  * Built the Streamlit application and organized the code for GitHub.
 * **Eng. Heba Adel**
 * **Eng. Ahmed Abdelkhalek**
 * **Eng. Neamat Gamal**
