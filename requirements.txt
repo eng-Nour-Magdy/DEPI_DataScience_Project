@@ -7,3 +7,4 @@ rasterio
 scipy
 opencv-python-headless
 gdown
+matplotlib
