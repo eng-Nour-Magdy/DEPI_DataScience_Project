@@ -63,7 +63,11 @@ st.markdown("""
 # ─────────────────────────────────────────────────────────────────────────────
 @st.cache_resource
 def load_model(modality):
-    """Load trained model checkpoint (cached in memory)."""
+    """
+    Load trained model checkpoint (cached in memory).
+    Handles key mismatch: .pth files saved without 'backbone.' prefix
+    but ResNet50Classifier expects 'backbone.xxx' keys.
+    """
     try:
         input_channels = 3 if modality == 'RGB' else 13
         model = ResNet50Classifier(
@@ -75,11 +79,39 @@ def load_model(modality):
         if not model_path.exists():
             st.error(f"❌ Model not found: {model_path}\n\nPlease run `python train.py` first.")
             return None
-        state_dict = torch.load(model_path, map_location=config.DEVICE)
-        model.load_state_dict(state_dict)
+
+        raw_state_dict = torch.load(model_path, map_location=config.DEVICE)
+
+        # ── تحديد الـ keys المتوقعة في الـ model ──────────────────────────
+        model_keys   = set(model.state_dict().keys())       # backbone.conv1.weight ...
+        saved_keys   = set(raw_state_dict.keys())           # conv1.weight ...
+
+        needs_backbone_prefix = (
+            any(k.startswith('backbone.') for k in model_keys) and
+            not any(k.startswith('backbone.') for k in saved_keys)
+        )
+
+        if needs_backbone_prefix:
+            # أضف prefix "backbone." لكل key
+            fixed_state_dict = {
+                f'backbone.{k}': v
+                for k, v in raw_state_dict.items()
+            }
+        else:
+            fixed_state_dict = raw_state_dict
+
+        # load بـ strict=False عشان نتجاهل أي keys زيادة مش محتاجاها
+        missing, unexpected = model.load_state_dict(fixed_state_dict, strict=False)
+
+        if missing:
+            st.warning(f"⚠️ Missing keys ({len(missing)}): {missing[:3]}...")
+        if unexpected:
+            st.warning(f"⚠️ Unexpected keys ({len(unexpected)}): {unexpected[:3]}...")
+
         model.eval()
         model = model.to(config.DEVICE)
         return model
+
     except Exception as e:
         st.error(f"❌ Error loading model: {e}")
         return None
