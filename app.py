@@ -65,7 +65,7 @@ def load_model(modality):
             num_classes=config.NUM_CLASSES,
             freeze_backbone=False
         )
-        model_path = config.MODELS_DIR / f'{modality.lower()}_best.pth'
+        model_path = config.MODELS_DIR / f'resnet50_{modality.lower()}.pth'
         if not model_path.exists():
             st.error(f"❌ Model not found: {model_path}\n\nPlease run `python train.py` first.")
             return None
