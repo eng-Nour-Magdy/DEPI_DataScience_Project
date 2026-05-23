@@ -70,7 +70,12 @@ def load_model(modality):
             st.error(f"❌ Model not found: {model_path}\n\nPlease run `python train.py` first.")
             return None
         state_dict = torch.load(model_path, map_location=config.DEVICE)
-        model.load_state_dict(state_dict)
+
+        # Fix key mismatch: add 'backbone.' prefix if needed
+        if not any(k.startswith('backbone.') for k in state_dict.keys()):
+            state_dict = {'backbone.' + k: v for k, v in state_dict.items()}
+
+        model.load_state_dict(state_dict, strict=False)
         model.eval()
         model = model.to(config.DEVICE)
         return model
