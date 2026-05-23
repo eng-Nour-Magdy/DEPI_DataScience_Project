@@ -14,7 +14,7 @@ import torch
 PROJECT_ROOT = Path(__file__).parent.absolute()
 DATA_RGB = PROJECT_ROOT / "EuroSAT" / "EuroSAT_RGB"
 DATA_MS = PROJECT_ROOT / "EuroSAT_MS"
-MODELS_DIR = PROJECT_ROOT / "models"
+MODELS_DIR = PROJECT_ROOT
 OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 OUTPUTS_PLOTS = OUTPUTS_DIR / "plots"
 OUTPUTS_METRICS = OUTPUTS_DIR / "metrics.json"
