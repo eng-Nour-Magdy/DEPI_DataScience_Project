@@ -221,13 +221,13 @@ def main():
                                  help="False Color highlights vegetation in red")
             if view_mode == 'False Color (NIR-R-G)':
                 display_rgb = get_false_color_composite(img_array)
-        st.image(display_rgb, caption="Uploaded Patch", use_container_width=True)
+        st.image(display_rgb, caption="Uploaded Patch", width='stretch')
  
     # Color overlay
     with col2:
         st.subheader("🎨 Classification Overlay")
         overlay_img = apply_color_overlay(display_rgb, top_class, alpha=0.45)
-        st.image(overlay_img, caption=f"Predicted: {top_class}", use_container_width=True)
+        st.image(overlay_img, caption=f"Predicted: {top_class}", width='stretch')
         # Legend badge
         st.markdown(
             f"<div style='background-color:rgb({r},{g},{b});padding:8px 16px;"
