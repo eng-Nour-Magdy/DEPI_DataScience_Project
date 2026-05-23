@@ -22,16 +22,16 @@ from model import ResNet50Classifier
 # Class Colors (consistent across the app)
 # ─────────────────────────────────────────────────────────────────────────────
 CLASS_COLORS = {
-    'AnnualCrop':           [255, 255,   0],   # أصفر
-    'Forest':               [  0, 100,   0],   # أخضر غامق
-    'HerbaceousVegetation': [  0, 200,   0],   # أخضر فاتح
-    'Highway':              [128, 128, 128],   # رمادي
-    'Industrial':           [255,   0,   0],   # أحمر
-    'Pasture':              [144, 238, 144],   # أخضر فاتح جداً
-    'PermanentCrop':        [255, 165,   0],   # برتقالي
-    'Residential':          [255,  20, 147],   # وردي
-    'River':                [  0,   0, 255],   # أزرق غامق
-    'SeaLake':              [  0, 191, 255],   # أزرق فاتح
+    'AnnualCrop':           [255, 255,   0],   # Yellow
+    'Forest':               [  0, 100,   0],   # Dark Green
+    'HerbaceousVegetation': [  0, 200,   0],   # Light Green
+    'Highway':              [128, 128, 128],   # Grey
+    'Industrial':           [255,   0,   0],   # Red
+    'Pasture':              [144, 238, 144],   # Pale Green
+    'PermanentCrop':        [255, 165,   0],   # Orange
+    'Residential':          [255,  20, 147],   # Pink
+    'River':                [  0,   0, 255],   # Dark Blue
+    'SeaLake':              [  0, 191, 255],   # Light Blue
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -82,7 +82,7 @@ def load_model(modality):
 
         raw_state_dict = torch.load(model_path, map_location=config.DEVICE)
 
-        # ── تحديد الـ keys المتوقعة في الـ model ──────────────────────────
+        # ── Detect key prefix mismatch between saved weights and model ────────
         model_keys   = set(model.state_dict().keys())       # backbone.conv1.weight ...
         saved_keys   = set(raw_state_dict.keys())           # conv1.weight ...
 
@@ -92,7 +92,7 @@ def load_model(modality):
         )
 
         if needs_backbone_prefix:
-            # أضف prefix "backbone." لكل key
+            # Add 'backbone.' prefix to all keys to match model architecture
             fixed_state_dict = {
                 f'backbone.{k}': v
                 for k, v in raw_state_dict.items()
@@ -100,7 +100,7 @@ def load_model(modality):
         else:
             fixed_state_dict = raw_state_dict
 
-        # load بـ strict=False عشان نتجاهل أي keys زيادة مش محتاجاها
+        # Load with strict=False to safely ignore any extra keys
         missing, unexpected = model.load_state_dict(fixed_state_dict, strict=False)
 
         if missing:
@@ -185,8 +185,9 @@ def run_inference(img_tensor, model):
 # ─────────────────────────────────────────────────────────────────────────────
 def segment_image_sliding_window(img_array, model, modality, patch_size=64, stride=32):
     """
-    تقسيم الصورة لـ patches وتصنيف كل patch بشكل منفصل،
-    ثم رسم لون كل class على الخريطة النهائية.
+    Divide the image into overlapping patches using a sliding window,
+    classify each patch independently, and paint each region with its
+    predicted land-cover colour to produce a segmentation map.
     """
     if modality == 'RGB':
         h, w = img_array.shape[:2]
@@ -200,18 +201,18 @@ def segment_image_sliding_window(img_array, model, modality, patch_size=64, stri
     x_positions = list(range(0, w - patch_size + 1, stride))
     total = len(y_positions) * len(x_positions)
 
-    progress_bar = st.progress(0, text="جاري تحليل الصورة...")
+    progress_bar = st.progress(0, text="Analysing image patches...")
     step = 0
 
     for y in y_positions:
         for x in x_positions:
-            # استخراج الـ patch
+            # Extract patch
             if modality == 'RGB':
                 patch = img_array[y:y+patch_size, x:x+patch_size]
             else:
                 patch = img_array[:, y:y+patch_size, x:x+patch_size]
 
-            # تصنيف
+            # Classify
             tensor = preprocess_image(patch, modality)
             with torch.no_grad():
                 logits = model(tensor)
@@ -219,24 +220,24 @@ def segment_image_sliding_window(img_array, model, modality, patch_size=64, stri
 
             color = CLASS_COLORS[config.CLASS_NAMES[pred_idx]]
 
-            # تلوين المنطقة
+            # Paint region
             color_map[y:y+patch_size, x:x+patch_size] += color
             count_map[y:y+patch_size, x:x+patch_size] += 1
 
             step += 1
             progress_bar.progress(step / total,
-                                  text=f"جاري التحليل... {step}/{total} patch")
+                                  text=f"Analysing... {step}/{total} patches")
 
     progress_bar.empty()
 
-    # تطبيع اللون في المناطق المتداخلة
+    # Normalise blended overlap regions
     count_map = np.maximum(count_map, 1)
     color_map /= count_map[:, :, np.newaxis]
     return np.clip(color_map / 255.0, 0, 1)
 
 
 def build_legend_figure():
-    """رسم legend صغير لكل الـ classes."""
+    """Build a compact legend showing the colour assigned to each land-cover class."""
     fig, ax = plt.subplots(figsize=(8, 2))
     fig.patch.set_alpha(0)
     ax.set_visible(False)
@@ -274,12 +275,12 @@ def main():
         stride = st.slider(
             "Stride (pixels)",
             min_value=16, max_value=64, value=32, step=8,
-            help="قيمة أصغر = تفاصيل أكثر لكن أبطأ"
+            help="Smaller stride = finer detail but slower processing"
         )
         alpha = st.slider(
             "Overlay Opacity",
             min_value=0.1, max_value=0.9, value=0.5, step=0.1,
-            help="شفافية طبقة الألوان فوق الصورة الأصلية"
+            help="Controls the transparency of the colour layer over the original image"
         )
         st.markdown("---")
         st.subheader("📌 Classes")
@@ -334,7 +335,7 @@ def main():
     tab1, tab2 = st.tabs(["🎯 Single Prediction", "🗺️ Segmentation Map"])
 
     # ════════════════════════════════════════════════════════════════════════
-    # TAB 1 — Single Prediction (الطريقة القديمة محسّنة)
+    # TAB 1 — Single Prediction (whole-image classification)
     # ════════════════════════════════════════════════════════════════════════
     with tab1:
         st.header("📊 Classification Results")
@@ -403,8 +404,8 @@ def main():
     with tab2:
         st.header("🗺️ Segmentation Map")
         st.markdown(
-            "الـ model بيقسّم الصورة لـ patches صغيرة (64×64) ويصنف كل واحدة لوحدها، "
-            "وبعدين بيرسم لون كل نوع غطاء أرضي على الخريطة."
+            "The model divides the image into small 64×64 patches, classifies each one "
+            "independently, and renders a colour-coded land-cover map."
         )
 
         if modality == 'MS':
@@ -417,7 +418,7 @@ def main():
         else:
             bg = display_rgb
 
-        run_seg = st.button("▶️ ابدأ التحليل", type="primary")
+        run_seg = st.button("▶️ Run Segmentation", type="primary")
 
         if run_seg:
             seg_map = segment_image_sliding_window(
@@ -426,34 +427,34 @@ def main():
                 stride=stride
             )
 
-            # دمج الصورة الأصلية مع الـ segmentation map
-            # تأكد إن الـ bg والـ seg_map نفس الأبعاد
+            # Blend original image with segmentation map
+            # Ensure bg and seg_map share the same spatial dimensions
             bg_resized   = np.array(Image.fromarray((bg * 255).astype(np.uint8))
                                     .resize((seg_map.shape[1], seg_map.shape[0]))) / 255.0
             overlay      = np.clip((1 - alpha) * bg_resized + alpha * seg_map, 0, 1)
 
             c1, c2 = st.columns(2)
             with c1:
-                st.subheader("📷 الصورة الأصلية")
+                st.subheader("📷 Original Image")
                 st.image(bg, use_container_width=True)
             with c2:
-                st.subheader("🎨 Segmentation Map")
+                st.subheader("🎨 Segmentation Overlay")
                 st.image(overlay, use_container_width=True, caption="Overlay")
 
-            # عرض الـ Segmentation Map بدون overlay
+            # Pure segmentation map (no background)
             st.subheader("🗺️ Pure Segmentation Map")
             st.image(seg_map, use_container_width=True)
 
             # Legend
-            st.subheader("🎨 Legend")
+            st.subheader("🎨 Class Legend")
             st.pyplot(build_legend_figure(), transparent=True)
 
-            # إحصائيات المساحة
+            # Area statistics
             st.subheader("📊 Land Cover Statistics")
-            # تحويل seg_map لـ labels بناءً على أقرب لون
+            # Map each pixel to the nearest class colour
             color_array = np.array(list(CLASS_COLORS.values()), dtype=np.float32) / 255.0
             flat_pixels = seg_map.reshape(-1, 3)
-            # حساب أقرب class لكل pixel
+            # Find the closest class for every pixel
             diffs = np.linalg.norm(
                 flat_pixels[:, None, :] - color_array[None, :, :], axis=2
             )
@@ -490,7 +491,7 @@ def main():
             st.pyplot(fig2, transparent=True)
 
         else:
-            st.info("👆 اضغط 'ابدأ التحليل' لتشغيل الـ Segmentation Map")
+            st.info("👆 Click 'Run Segmentation' to generate the land-cover map")
 
     # ── Footer ────────────────────────────────────────────────────────────────
     st.markdown("---")
